@@ -66,7 +66,7 @@ public class BWEARResourceImportMojo extends AbstractMojo {
     		 
     		 
     		 
-    		 if (com.tibco.bw.maven.plugin.utils.FileUtilsProject.getApplicationMetaInf(projectBasedir)!=null)
+    		 if (com.tibco.bw.maven.plugin.utils.FileUtilsProject.getApplicationMetaInf(projectBasedir)!=null && CheckExistsProperties())
     		 {
     		 
 				for (File file : getApplicationMetaInf().listFiles()) {
@@ -105,11 +105,19 @@ public class BWEARResourceImportMojo extends AbstractMojo {
     		 }
     		 else
     		 {
-    			 getLog().info("bwresourceImport: Skip Import properties");
+				if (com.tibco.bw.maven.plugin.utils.FileUtilsProject.getApplicationMetaInf(projectBasedir) == null) {
+					getLog().info("bwresourceImport: Skip Import properties");
+				} else if (FileUtilsProject.getApplicationMSrcResources(projectBasedir) == null) {
+					getLog().info("bwresourceImport: Skip Import properties.RESOURCE Path(src/resources) not exists.");
+				} else {
+					getLog().info("bwresourceImport: Skip Import properties.file properties " + propertyfile
+							+ " not exists.");
+				}
     		 }
     		
     		 getLog().info("bwresourceImport Mojo finished execution");
-		} catch (Exception e1) {
+		}
+    	catch (Exception e1) {
 			throw new MojoExecutionException("Failed to Import BW property file ", e1);
 		}
 	}
@@ -193,6 +201,18 @@ public class BWEARResourceImportMojo extends AbstractMojo {
 		Document doc = docBuilder.parse(file);
 		getLog().debug("Loaded Tibco.xml file");
 		return doc;
+	}
+	
+	private boolean CheckExistsProperties() throws Exception {
+
+		try {
+			return new File(FileUtilsProject.getApplicationMSrcResources(projectBasedir).getAbsolutePath() + "/"
+					+ propertyfile).exists();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return false;
+		}
+		
 	}
 	
 

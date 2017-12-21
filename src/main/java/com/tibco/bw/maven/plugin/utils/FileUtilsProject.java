@@ -99,7 +99,16 @@ public class FileUtilsProject {
 				return false;
 			}
 		});
-       return fileList[0];
+		if (fileList==null)
+				{
+					
+					return null;
+					
+				}
+		else
+			{
+				return fileList[0];
+			}
 	}
 
 	

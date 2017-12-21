@@ -90,6 +90,9 @@ public class BWEARResourceExportMojoTest extends AbstractMojoTestCase{
 	    }
 	
 	
+	
+	
+
 	@Test
 	public void testExecuteTargetDelete() {
 

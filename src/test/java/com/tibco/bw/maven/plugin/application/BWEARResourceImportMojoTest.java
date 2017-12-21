@@ -83,6 +83,31 @@ public class BWEARResourceImportMojoTest extends AbstractMojoTestCase{
 	 
 	    }
 	
+	@Test
+	public void testExecuteWithOutProperties() {
+
+	        File pom = new File( "src/test/resources/unit/BWEARResourceImportWithOutPropertiesMojo/pom.xml" );
+	        //assertNotNull( pom );
+	        assertTrue( pom.exists() );
+
+	        BWEARResourceImportMojo myMojo;
+			try {
+				myMojo = (BWEARResourceImportMojo) lookupMojo( "bwimport", pom );
+				
+		        assertNotNull( myMojo );
+		        myMojo.execute();
+		        
+		        
+		        
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+
+	 
+	    }
+	
 
 }
 
