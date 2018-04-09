@@ -99,9 +99,9 @@ public class FileUtilsProject {
 				return false;
 			}
 		});
-		if (fileList==null)
+		if (fileList==null || fileList.length < 1)
 				{
-					
+			
 					return null;
 					
 				}
