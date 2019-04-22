@@ -90,7 +90,8 @@ public class FileUtilsProject {
      */
 	public static File getApplicationMSrcResources(File projectBasedir) throws Exception {
 		
-		File[] fileList = new File(projectBasedir.getAbsolutePath()+"/" +SRC).listFiles(new FileFilter() {
+		//File[] fileList = new File(projectBasedir.getAbsolutePath()+"/" +SRC).listFiles(new FileFilter() {
+		File[] fileList = new File(projectBasedir.getAbsolutePath()+"/" +SRC ).listFiles(new FileFilter() {
 			public boolean accept(File pathname) {
 		
 				if(pathname.getName().indexOf(RESOURCES) != -1) {
@@ -99,14 +100,14 @@ public class FileUtilsProject {
 				return false;
 			}
 		});
-		if (fileList==null || fileList.length < 1)
+		if (fileList==null || fileList.length<1)
 				{
-			
-					return null;
+						return null;
 					
 				}
 		else
 			{
+				System.out.println ("fileList[0]"+fileList.length);
 				return fileList[0];
 			}
 	}
