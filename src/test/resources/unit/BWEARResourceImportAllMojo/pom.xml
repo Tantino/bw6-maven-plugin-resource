@@ -27,16 +27,16 @@
           <execution>
             <phase>compile</phase>
             <goals>
-              <goal>bwimport</goal>
+              <goal>bwimportall</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
           <!-- Specify the MyMojo parameter -->
           <outputDirectory>target/test-harness/project-to-test</outputDirectory>
-          <projectBasedir>src/test/resources/unit/BWEARResourceImportMojoAfrodita</projectBasedir>
-          <profile>DESA.substvar</profile>
-          <propertyfile>DESA.properties</propertyfile>
+          <projectBasedir>src/test/resources/unit/BWEARResourceImportAllMojo</projectBasedir>
+          <profile>default.substvar</profile>
+          <propertyfile>perro.properties</propertyfile>
         </configuration>
       </plugin>
     </plugins>

@@ -31,7 +31,30 @@ public class BWEARResourceImportMojoTest extends AbstractMojoTestCase{
 
 	 
 	    }
-	
+
+	public void testExecuteAfrodita() {
+
+		File pom = getTestFile( "src/test/resources/unit/BWEARResourceImportMojoAfrodita/pom.xml" );
+		//assertNotNull( pom );
+		assertTrue( pom.exists() );
+
+		BWEARResourceImportMojo myMojo;
+		try {
+			myMojo = (BWEARResourceImportMojo) lookupMojo( "bwimport", pom );
+
+			assertNotNull( myMojo );
+			myMojo.execute();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+	}
+
+
+
 	@Test
 	public void testExecuteSinMetaINF() {
 
@@ -132,6 +155,30 @@ public class BWEARResourceImportMojoTest extends AbstractMojoTestCase{
 	 
 	    }
 
+	@Test
+	public void testExecuteWithHERMESjava() {
+
+		File pom = new File( "src/test/resources/unit/HERMES.java/pom.xml" );
+		//assertNotNull( pom );
+		assertTrue( pom.exists() );
+
+		BWEARResourceImportMojo myMojo;
+		try {
+			myMojo = (BWEARResourceImportMojo) lookupMojo( "bwimport", pom );
+
+			assertNotNull( myMojo );
+			myMojo.execute();
+
+
+
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+
+	}
 }
 
 

@@ -13,7 +13,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -22,7 +25,9 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.maven.project.ProjectDependenciesResolver;
+
+import org.apache.maven.plugin.Mojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,14 +37,14 @@ public class FileUtilsProject {
 	
 	private static final String RESOURCES = "resources";
 	private static final String SRC = "src";
-
+	private static final Pattern ext = Pattern.compile("(?<=.)\\.[^.]+$");
 	
 	/**
 	 * @param prop
 	 * @param FileOutput 
 	 * @throws IOException
 	 */
-	public static void setSavePropertyOrder(Properties prop, String FileOutput) throws IOException {
+	public static void setSavePropertyOrder( Properties prop, String FileOutput) throws IOException {
 		Properties tmp = new Properties() {
 			    @Override
 			    public synchronized Enumeration<Object> keys() {
@@ -151,7 +156,6 @@ public class FileUtilsProject {
 	
 	
 	/**
-	 * @param Element name
 	 * @return String
 	 */
 	public static String setvalueNode(Element name, Properties prop) {
@@ -202,5 +206,101 @@ public class FileUtilsProject {
 		transformer.transform(source, result);
 	}
 
+	public void setImportPropertyFieToDefaultVars(Mojo log, String propertyfile, String profile, File projectBasedir) throws MojoExecutionException {
+		try {
 
+
+			log.getLog().info("bwresourceImport Mojo started execution");
+			log.getLog().info("Loading property file -->" + propertyfile);
+			log.getLog().info("update  profile -->" + profile);
+
+
+			boolean subsvarExist=false;
+			boolean subsvarExistOK=false;
+			if (FileUtilsProject.getApplicationMetaInf(projectBasedir)!=null && CheckExistsProperties(projectBasedir, propertyfile))
+			{
+
+				for (File file : getApplicationMetaInf(projectBasedir).listFiles()) {
+
+
+					if (file.getName().equals(profile.toString())) {
+						log.getLog().info("backup file " + file.getName() + " to " + file.getName() + ".backup");
+						FileUtilsProject.copyFile(file, new File(file.getAbsolutePath() + ".backup"));
+						Properties prop = FileUtilsProject.LoadProperties(
+								FileUtilsProject.getApplicationMSrcResources(projectBasedir).getAbsolutePath() + "/"
+										+ propertyfile);
+						// Properties prop =
+						// FileUtilsProject.LoadProperties(projectBasedir+"/"+propertyfile);
+						log.getLog().info("Properties loaded : " + propertyfile);
+
+						DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+						DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+						Document doc = docBuilder.parse(file);
+
+						NodeList globalVariableList = doc.getElementsByTagName("globalVariable");
+
+						for (int i = 0; i < globalVariableList.getLength(); ++i) {
+
+							Element node = (Element) globalVariableList.item(i);
+
+							FileUtilsProject.setvalueNode(node, prop);
+
+						}
+
+						FileUtilsProject.setUpdatePropertyXML(file, doc);
+
+						log.getLog().info("Done " + profile + " updating.");
+						subsvarExistOK=true;
+						subsvarExist=false;
+					}
+					else if (subsvarExist != true && subsvarExistOK==false )
+					{
+						subsvarExist=true;
+					}
+				}
+
+
+
+			}
+			else
+			{
+				if (FileUtilsProject.getApplicationMetaInf(projectBasedir) == null) {
+					log.getLog().info("com.tibco.bw.maven.plugin.utils.FileUtilsProject.getApplicationMetaInf(projectBasedir): ");
+					log.getLog().info("projectBasedir: "+ projectBasedir.toString());
+					log.getLog().info("bwresourceImport: Skip Import properties");
+				} else if (FileUtilsProject.getApplicationMSrcResources(projectBasedir) == null) {
+					log.getLog().info("FileUtilsProject.getApplicationMSrcResources(projectBasedir): ");
+					log.getLog().info("projectBasedir: "+ projectBasedir.toString());
+					log.getLog().info("bwresourceImport: Skip Import properties.RESOURCE Path(src/resources) not exists.");
+				} else {
+					log.getLog().info("bwresourceImport: Skip Import properties.file properties " + propertyfile
+							+ " not exists.");
+				}
+			}
+			if (subsvarExist==true) {
+				log.getLog().info("bwresourceImport: Skip Import properties.subsvar " + profile
+						+ " not exists.");
+			}
+			log.getLog().info("bwresourceImport Mojo finished execution");
+		}
+		catch (Exception e1) {
+			throw new MojoExecutionException("Failed to Import BW property file ", e1);
+		}
+	}
+
+	public boolean CheckExistsProperties(File projectBasedir, String propertyfile) throws Exception {
+
+		try {
+			return new File(FileUtilsProject.getApplicationMSrcResources(projectBasedir).getAbsolutePath() + "/"
+					+ propertyfile).exists();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			return false;
+		}
+
+	}
+
+	public static String getFileNameWithoutExtension(File file) {
+		return ext.matcher(file.getName()).replaceAll("");
+	}
 }
