@@ -112,7 +112,7 @@ public class FileUtilsProject {
 				}
 		else
 			{
-				System.out.println ("fileList[0]"+fileList.length);
+				//System.out.println ("fileList[0]"+fileList.length);
 				return fileList[0];
 			}
 	}
@@ -278,8 +278,8 @@ public class FileUtilsProject {
 				}
 			}
 			if (subsvarExist==true) {
-				log.getLog().info("bwresourceImport: Skip Import properties.subsvar " + profile
-						+ " not exists.");
+				log.getLog().info("bwresourceImport: Skip Import PROFILE " + profile
+						+ " not exists in your project.");
 			}
 			log.getLog().info("bwresourceImport Mojo finished execution");
 		}
