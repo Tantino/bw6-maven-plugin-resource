@@ -25,7 +25,7 @@ import java.util.Properties;
  * Call mvn com.tibco.plugins:bw6-maven-plugin-resource:bwimport -Dprofile=ProfileNameFile -Dpropertyfile=propertyFile
  * @phase N/A
  */
-@Mojo(name = "bwimportall" ,defaultPhase = LifecyclePhase.INSTALL)
+@Mojo(name = "bwimportall" ,defaultPhase = LifecyclePhase.PREPARE_PACKAGE)
 public class BWEARResourceImportAllMojo extends AbstractMojo {
 
     @Component
@@ -44,7 +44,7 @@ public class BWEARResourceImportAllMojo extends AbstractMojo {
 	@Parameter(property="profile",required=true)
 	private String profile;
 
-	@Parameter(property="propertyfile",required=true)
+	@Parameter(property="propertyfile",required=false)
 	private String propertyfile;
 
 
@@ -54,37 +54,48 @@ public class BWEARResourceImportAllMojo extends AbstractMojo {
      *
      */
     public void execute() throws MojoExecutionException {
-    	try {
+		try {
 
 
+			getLog().info("bwresourceImportALL Mojo started execution");
+			//FileUtilsProject.getApplicationMSrcResources(projectBasedir).getAbsolutePath();
+			File directory = null;
+			try {
+				if (FileUtilsProject.getApplicationMetaInf(projectBasedir) == null) {
+					getLog().info("com.tibco.bw.maven.plugin.utils.FileUtilsProject.getApplicationMetaInf(projectBasedir): ");
+					getLog().info("projectBasedir: " + projectBasedir.toString());
+					getLog().info("bwresourceImport: Skip Import properties");
+				} else if (FileUtilsProject.getApplicationMSrcResources(projectBasedir) == null) {
+					getLog().info("FileUtilsProject.getApplicationMSrcResources(projectBasedir): ");
+					getLog().info("projectBasedir: " + projectBasedir.toString());
+					getLog().info("bwresourceImport: Skip Import properties.RESOURCE Path(src/resources) not exists.");
+				} else {
+					directory = new File(FileUtilsProject.getApplicationMSrcResources(projectBasedir).getAbsolutePath());
+					//getLog().info(directory.listFiles().toString());
+					File[] filesList = directory.listFiles();
+					for (File f : filesList) {
+						if (f.isDirectory())
+							getLog().info(f.getName());
+						if (f.isFile()) {
 
-    		 getLog().info("bwresourceImportALL Mojo started execution");
+							FileUtilsProject generateFile = new FileUtilsProject();
+							String FileWithoutExtension = generateFile.getFileNameWithoutExtension(f);
+							getLog().info("FileWithoutExtension :" + FileWithoutExtension);
+							generateFile.setImportPropertyFieToDefaultVars(this, FileWithoutExtension + ".properties", FileWithoutExtension + ".substvar", projectBasedir);
 
-			File directory= new File(FileUtilsProject.getApplicationMSrcResources(projectBasedir).getAbsolutePath());
-
-			//getLog().info(directory.listFiles().toString());
-			File[] filesList = directory.listFiles();
-			for(File f : filesList){
-				if(f.isDirectory())
-					getLog().info(f.getName());
-				if(f.isFile()){
-
-					FileUtilsProject generateFile = new FileUtilsProject();
-					String FileWithoutExtension=generateFile.getFileNameWithoutExtension(f);
-					getLog().info("FileWithoutExtension :"+FileWithoutExtension);
-					generateFile.setImportPropertyFieToDefaultVars(this, FileWithoutExtension+".properties", FileWithoutExtension+".substvar", projectBasedir);
-
+						}
+					}
 				}
+
+				getLog().info("bwresource ImportALL Mojo finished execution");
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 
-    		
-    		 getLog().info("bwresourceImportALL Mojo finished execution");
-		}
-    	catch (Exception e1) {
+		} catch (Exception e1) {
 			throw new MojoExecutionException("Failed to Import BW ALL property file ", e1);
 		}
 	}
-
 
 
 
